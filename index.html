@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Home</title>
+  <meta name="description" content="Steam Game Review Sentiment Analysis Utilizing Various Machine Learning and Text Mining Methods">
+
+  <style>
+    :root{
+      --bg: #171a21;
+      --surface: #1b2838;
+      --surface-2: #0f1923;
+      --border: #263445;
+      --text: #e6edf3;
+      --muted: #aab9c7;
+      --accent: #66c0f4;
+      --accent-2: #8bf0ff;
+
+      --wrap: 1180px;
+      --radius: 16px;
+
+      --header-h: 96px;
+      --header-h-compact: 56px;
+
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;padding:0;background:var(--bg);color:var(--text);
+      font:16px/1.65 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    img{max-width:100%;height:auto;display:block}
+
+    .wrap{max-width:var(--wrap); margin-inline:auto; padding:0 20px}
+
+    /* Top ribbon */
+    header{
+      position:sticky; top: 1px;; z-index:1000;
+      height:var(--header-h);
+      transition: height .2s ease, box-shadow .2s ease, background-color .2s ease;
+      background:linear-gradient(180deg, rgba(27,40,56,.95), rgba(23,26,33,.92));
+      backdrop-filter:saturate(120%) blur(8px);
+      box-shadow: 0 1px 0 rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    header.shrink{
+      height:var(--header-h-compact);
+      box-shadow: 0 8px 24px rgba(0,0,0,.45);
+      background:linear-gradient(180deg, rgba(23,26,33,.96), rgba(23,26,33,.94));
+    }
+    .nav{
+      display:flex; align-items:center; justify-content: center; gap:12px; height:100%; width: 100%;
+      overflow-x:auto; scrollbar-width:thin;
+    }
+    .nav a{
+      display:inline-flex; align-items:center; justify-content:center;
+      height:38px; padding:0 14px; border-radius:999px; white-space:nowrap;
+      background:rgba(102,192,244,.08); border:1px solid rgba(102,192,244,.25);
+      color:var(--text); text-decoration:none; font-weight:600; letter-spacing:.2px;
+    }
+    header.shrink .nav a{ height:32px; }
+    .nav a:hover{ background:rgba(102,192,244,.16); border-color:rgba(102,192,244,.45); }
+    .nav a[aria-current="page"]{ background:rgba(102,192,244,.24); border-color:var(--accent); }
+
+    /* Page title (non-shrinking, under ribbon) */
+    .page-title{
+      padding:18px 0 6px;
+      text-align:center;
+    }
+    .page-title h1{
+      margin:0;
+      font-weight:800;
+      font-size:clamp(22px, 3.6vw, 34px);
+      line-height:1.2;
+    }
+    .title-divider{
+      width:min(180px, 30%); height:3px; margin:10px auto 12px;
+      background:linear-gradient(90deg, transparent, var(--accent), transparent);
+      border-radius:999px;
+    }
+
+    main{ padding:6px} /* trying to reduced top padding, failing*/
+
+    /* Grid: 70 / 30 ish on desktop, stacks up on phones tho, thankfully */
+    .grid{
+      display:grid; gap:20px; align-items:start;
+      grid-template-columns: minmax(0, 1.8fr) minmax(300px, 1.2fr); 
+    }
+    @media (max-width: 1100px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(27,40,56,1), rgba(23,26,33,1));
+      border:1px solid var(--border); border-radius:var(--radius);
+      box-shadow: var(--shadow);
+      padding:18px;
+    }
+    .card h2{ margin:4px 0 10px; font-size:clamp(20px, 2.6vw, 28px); line-height:1.2; }
+    .muted{ color:var(--muted); }
+    .kicker{ color:var(--accent-2); font-weight:700; text-transform:uppercase; letter-spacing:.12em; font-size:12px; }
+
+    /* Left column */
+    .section{ display:flex; flex-direction:column; gap:16px; }
+
+    .data-list{ list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+    .data-list li{
+      background:rgba(102,192,244,.06); border:1px dashed rgba(102,192,244,.28);
+      border-radius:12px; padding:12px 14px;
+    }
+
+    /* Right column (About + Team) */
+    aside{ position:sticky; top: calc(var(--header-h-compact) + 12px); }
+    .about p{ margin:0; }
+
+    .team{ display:flex; flex-direction:column; gap:14px; }
+    .person{
+      display:grid; grid-template-columns: 128px 1fr; gap:14px; align-items:center;
+      background:rgba(255,255,255,.02); border:1px solid var(--border); border-radius:14px; padding:12px;
+    }
+    .avatar{
+      width:128px; height:128px; border-radius:12px; object-fit:cover; background:#0c131a; border:1px solid var(--border);
+    }
+    .person h3{ margin:0 0 4px; font-size:18px; }
+    .person .meta{ font-size:14px; color:var(--muted); margin-bottom:6px; }
+    .links a{ margin-right:10px; font-weight:600; }
+
+    footer{
+      border-top:1px solid var(--border); color:var(--muted);
+      padding:18px 0 38px; text-align:center;
+    }
+
+    :where(a, button):focus-visible{
+      outline:2px solid var(--accent); outline-offset:2px; border-radius:8px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Shrinking top ribbon (buttons only) -->
+  <header id="site-header">
+    <div class="wrap">
+      <nav class="nav" aria-label="Primary">
+        <a href="#" aria-current="page">Home</a>
+        <a href="https://github.com/SkyShroom/Data-and-Text-Mining-Project-WIP-/blob/main/data_mining%20(2).pdf">Paper</a>
+        <a href="presentation.html">Presentation</a>
+        <a href="https://github.com/SkyShroom/Data-and-Text-Mining-Project-WIP-/blob/main/DataMining_Steam_Project_(second_version).ipynb" target="_blank" rel="noopener">Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Non-shrinking page title -->
+  <div class="wrap page-title">
+    <h1>Steam Game Review Sentiment Analysis Utilizing Various Machine Learning and Text Mining Methods</h1>
+    <div class="title-divider" aria-hidden="true"></div>
+  </div>
+
+  <main class="wrap">
+    <div class="grid" role="region" aria-label="Main layout">
+      <!-- LEFT: Abstract → Data Sources → Open Space -->
+      <section class="section" aria-label="Content column">
+        <!-- Abstract -->
+        <article id="abstract" class="card" aria-labelledby="abstract-h">
+          <div class="kicker">Abstract</div>
+          <h2 id="abstract-h">Project Abstract</h2>
+          <p class="muted">
+               The video game industry has become increasingly
+               reliant on online reviews to gauge player sentiment and inform
+               game development and marketing strategies. Sentiment analysis,
+               a subfield of natural language processing, offers a powerful tool
+               for extracting insights from text data. This study investigates
+               the sentiment of Steam reviews using a comparative analysis of
+               four machine learning methods (VADER, TextBlob, TF-IDF, and
+               BERT) and three clustering algorithms (K-means, DBSCAN, and
+               Hierarchical Clustering)
+          </p>
+        </article>
+
+        <!-- Data Sources -->
+        <article id="data" class="card" aria-labelledby="data-h">
+          <div class="kicker">Data</div>
+          <h2 id="data-h">Data Sources</h2>
+          <ul class="data-list">
+            <li><strong>Steam Reviews Dataset</strong> A Kaggle Dataset by user Forgemaster, Public Domain <a href="https://www.kaggle.com/datasets/forgemaster/steam-reviews-dataset?resource=download" target="_blank" rel="noopener">Link</a></li>
+            </ul>
+        </article>
+
+        <!-- Open Space -->
+        <article class="card" aria-labelledby="future-h">
+          <div class="kicker">Upcoming</div>
+          <h2 id="future-h">Presentations and more</h2>
+          <p class="muted">
+            Currently a work in progress, stay tuned for future updates!
+          </p>
+        </article>
+      </section>
+
+      <!-- RIGHT: About + Team (single column, roomier) -->
+      <aside aria-label="Sidebar">
+        <!-- About -->
+        <section id="about" class="card about" aria-labelledby="about-h">
+          <div class="kicker">About</div>
+          <h2 id="about-h">Index Terms</h2>
+          <p class="muted">
+               Machine Learning, Video Games, Sentiment
+               Analysis, Clustering
+          </p>
+        </section>
+
+        <!-- Team -->
+        <section class="card" aria-labelledby="team-h" style="margin-top:30px">
+          <div class="kicker">Team</div>
+          <h2 id="team-h">Contributors</h2>
+          <div class="team">
+            <div class="person">
+              <img class="avatar" src="assets/profile1.jpg" alt="Photo of Member 1" loading="lazy">
+              <div>
+                <h3>Logan Morrison</h3>
+                <div class="meta">
+                    Department of Data Science<br>
+                    Florida Polytechnic University
+                  </div>                  
+                <div class="links">
+                  <a href="mailto:member1@university.edu"> lmorrison0938@floridapoly.edu</a>
+               </div>
+               <div class="location"> Lakeland, Florida, USA</div>
+                </div>
+              </div>
+            </div>
+            <div class="person">
+              <img class="avatar" src="assets/profile2.jpg" alt="Photo of Member 2" loading="lazy">
+              <div>
+               <h3>Michael Zaino</h3>
+               <div class="meta">
+                   Department of Computer Science<br>
+                   Florida Polytechnic University
+                 </div>                  
+               <div class="links">
+                 <a href="mailto:member1@university.edu">  mzaino0666@floridapoly.edu</a>
+              </div>
+              <div class="location"> Lakeland, Florida, USA</div>
+              </div>
+            </div>
+            <div class="person">
+              <img class="avatar" src="assets/profile3.jpg" alt="Photo of Member 3" loading="lazy">
+              <div>
+               <h3>Henry Marsh</h3>
+               <div class="meta">
+                   Department of Data Science<br>
+                   Florida Polytechnic University
+                 </div>                  
+               <div class="links">
+                 <a href="mailto:member1@university.edu">  hmarsh0311@floridapoly.edu</a>
+              </div>
+              <div class="location"> Lakeland, Florida, USA</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      © <span id="year"></span> · Built with GitHub Pages
+    </div>
+  </footer>
+
+  <script>
+    // Auto year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Shrinking header on scroll
+    const header = document.getElementById('site-header');
+    const activateAfter = 100; // px
+    const onScroll = () => {
+      if (window.scrollY > activateAfter) header.classList.add('shrink');
+      else header.classList.remove('shrink');
+    };
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  </script>
+</body>
+</html>
